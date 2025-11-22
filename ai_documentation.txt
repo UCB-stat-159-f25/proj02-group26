@@ -1,0 +1,83 @@
+Yujian Zhou:
+
+
+I used ai for sanity check when I found my BERTopic result is different from the given one
+
+Prompt: it seems my topic_info is different from the sample, is that because the seed of bert model is different?
+
+Answer:Yes — your BERTopic results will almost always look different, even if you follow the instructions exactly.
+This is normal, and it is NOT because you made a mistake.
+Here’s why. ERTopic includes multiple sources of randomness:
+
+1️⃣ UMAP dimensionality reduction
+
+UMAP is non-deterministic by default unless you explicitly set:
+
+umap_model = UMAP(random_state=42)
+
+
+If you don’t set a seed for UMAP, your cluster structure will differ every run.
+
+2️⃣ HDBSCAN clustering
+
+HDBSCAN can also introduce small randomness unless you set:
+
+hdbscan_model = HDBSCAN()
+
+
+and even then, it may vary slightly due to distance ties and core point selection.
+
+3️⃣ Sentence-transformers embeddings
+
+If you do not specify the embedding model and you let BERTopic auto-load one, it may pick a slightly different default version or use GPU/CPU differences.
+
+4️⃣ The sample output you showed is from a pre-trained example
+
+Unless you use:
+
+the same model
+
+same preprocessing
+
+same library version
+
+same seeds
+
+same random states
+
+you cannot expect identical topic words.
+
+🧪 If you want reproducible BERTopic topics
+
+You must set seeds for all components:
+
+from bertopic import BERTopic
+from umap import UMAP
+from hdbscan import HDBSCAN
+
+umap_model = UMAP(random_state=42)
+hdbscan_model = HDBSCAN()
+
+topic_model = BERTopic(
+    min_topic_size=3,
+    umap_model=umap_model,
+    hdbscan_model=hdbscan_model
+)
+
+docs = sou["Text"].to_list()
+topics, probs = topic_model.fit_transform(docs)
+
+
+Also, if you want 100% reproducibility, fix the embedding model:
+
+topic_model = BERTopic(
+    min_topic_size=3,
+    embedding_model="all-MiniLM-L6-v2",
+    umap_model=UMAP(random_state=42),
+    hdbscan_model=HDBSCAN()
+)
+
+
+Now your results will stabilize across reruns.
+
+I also used ai to help polish the figures, for example ask how to change color style of heatmap, how to add hide manually adjust x-ticks when having thousands of indexes.
