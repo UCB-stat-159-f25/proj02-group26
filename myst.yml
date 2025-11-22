@@ -3,7 +3,7 @@ version: 1
 project:
   id: 23068d5b-75a1-4183-b3ea-50388329c359
   title: "Project 2: Reproducibility in Natural Language Processing"
-  # description:
+  description: MYST for project 2
   # keywords: []
   authors: [Yujian Zhou, Ethan Wang, Stephanie Quiroz, Zhanna Chvyl] 
   github: https://github.com/UCB-stat-159-f25/proj02-group26
